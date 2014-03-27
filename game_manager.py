@@ -24,6 +24,15 @@ class GameManager:
     self.state = AWAITING_INITIAL_X
     self.board = game_rules.makeBoard(self.rows, self.cols)
 
+  def interrupt(self, a, b):
+    from subprocess_player import ExternalPlayer
+    if self.p1.__class__ is ExternalPlayer:
+      self.p1.interrupt()
+    if self.p2.__class__ is ExternalPlayer:
+      self.p2.interrupt()
+    import sys
+    sys.exit(1)
+
   def play(self):
     while self.state is not X_VICTORY and self.state is not O_VICTORY:
       self._takeTurn()
@@ -59,12 +68,16 @@ class GameManager:
 
   def _handleTurnX(self, playerBoard, board):
     self.state = O_TURN
-    (self.board, legal) = game_rules.makePlayerMove(board, 'x', self.p1.getMove(playerBoard))
-    if not legal:
+    move = self.p1.getMove(playerBoard)
+    if game_rules.isLegalMove(board, 'x', move, False):
+      self.board = game_rules.makeMove(board, move)
+    else:
       self.state = O_VICTORY
 
   def _handleTurnO(self, playerBoard, board):
     self.state = X_TURN
-    (self.board, legal) = game_rules.makePlayerMove(board, 'o', self.p2.getMove(playerBoard))
-    if not legal:
+    move = self.p2.getMove(playerBoard)
+    if game_rules.isLegalMove(board, 'o', move, False):
+      self.board = game_rules.makeMove(board, move)
+    else:
       self.state = X_VICTORY

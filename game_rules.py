@@ -22,9 +22,9 @@ def makePlayerMove(board, player, move):
     newBoard = deepcopy(board)
     for jump in interpolateMove(move):
       _makeJump(newBoard, jump)
-    return (newBoard, True)
+    return newBoard
   else:
-    return (board, False)
+    return board
 
 def _makeJump(board, jump):
   mid = midPoint(jump)
@@ -60,11 +60,19 @@ def isLegalMove(board, player, move, loud=True):
       if loud:
         print("Illegal move")
       return False
+    board = deepcopy(board)
+    _makeJump(board, jump)
     hasJumped = True
   return hasJumped
 
 def isLegalJump(board, player, other, jump):
   return pieceAt(board, jump[0]) == player and pieceAt(board, midPoint(jump)) == other and pieceAt(board, jump[1]) == " "
+
+def isInitialMove(board):
+  return countPieces(board, ' ') < 2
+
+def countPieces(board, piece):
+  return sum([sum([1 if c == piece else 0 for c in row]) for row in board])
 
 def interpolateMove(move):
   points = []
@@ -125,6 +133,27 @@ def getFirstMovesForX(board):
 def getFirstMovesForO(board):
   return getNeighbors(board, getEmptySquares(board).pop())
 
+def getLegalMoves(board, symbol):
+  empties = getEmptySquares(board)
+  if len(empties) == 0:
+    return getFirstMovesForX(board)
+  elif len(empties) == 1:
+    return getFirstMovesForO(board)
+  else:
+    mine = [(r, c) for r in range(len(board)) for c in range(len(board[0])) if pieceAt(board, (r, c)) == symbol]
+    allMoves = [(o, d) for o in mine for d in empties]
+    return [move for move in allMoves if isLegalMove(board, symbol, move, False)]
+
+def linearizeBoard(board):
+  return "".join(["".join(row) for row in board])
+
+def delinearizeBoard(rawBoard, rows, cols):
+  board = [list(rawBoard[i:i+cols]) for i in range(0, len(rawBoard), cols)]
+  if len(board) != rows:
+    print("Problem parsing board!  Expected %s rows, got %s." % (rows, len(board)))
+  return board
+
 def printBoard(board):
   for row in board:
     print("".join(row))
+  print("")
