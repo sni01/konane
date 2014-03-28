@@ -44,7 +44,7 @@ class Player(object):
 class MinimaxPlayer(Player):
   def __init__(self, symbol):
     super(MinimaxPlayer, self).__init__(symbol)
-    self.depthLimit = 3  # TODO: fix me
+    self.depthLimit = 2  # TODO: fix me
 
   def selectInitialX(self, board):
     return (0, 0)
@@ -73,7 +73,9 @@ class MinimaxPlayer(Player):
     return best
     
   def _assessBoard(self, board, symbol):
-    return (1 if self.symbol == symbol else -1, board)  # TODO: write a better heuristic
+    #return (1 if self.symbol == symbol else -1, board)  # TODO: write a better heuristic
+    heuristic = self.Heuristic(board)
+    return (heuristic, board)
 
   def _minimaxDecision(self, board, symbol):
     return self._maxValue(board, self.depthLimit, symbol)[1]
@@ -100,13 +102,16 @@ class MinimaxPlayer(Player):
       best = min(best, (score, move))
     return best
 
+  def Heuristic(self, board):
+    countCoins = [(r, c) for r in range(len(board)) for c in range(len(board[0])) if game_rules.pieceAt(board, (r, c)) == self.symbol]
+    return len(countCoins)
+
 
 
 class AlphaBetaPlayer(Player):
   def __init__(self, symbol):
     super(AlphaBetaPlayer, self).__init__(symbol)
-    self.depthLimit = 3
-
+    self.depthLimit = 2
   # initial methods for x player the same as ramdom x player initial method
   def selectInitialX(self, board):
     validMoves = game_rules.getFirstMovesForX(board)
@@ -117,7 +122,7 @@ class AlphaBetaPlayer(Player):
     validMoves = game_rules.getFirstMovesForO(board)
     return random.choice(list(validMoves))
 
-  def Max_Value(self, board, a, b, depthLimit):
+  def Max_Value(self, board, a, b, depthLimit, symbol):
     #set initial max value to minus infinity
     val = -100000
     #get legalmoves
@@ -130,23 +135,25 @@ class AlphaBetaPlayer(Player):
     for i in range(len(legalMoves)):
       nextBoard = deepcopy(board)
       nextBoard = game_rules.makeMove(nextBoard, legalMoves[i])
-      #nextBoard = nextBoard[0]
 
       #when meet depth limit, then use heuristic function to replace the val Min_Value
       Min = 100000
       if(depthLimit == 0):
-        Min = self.Heuristic(nextboard)
+        Min = self.Heuristic(nextBoard)
       else:
-        Min = self.Min_Value(nextBoard,a,b,depthLimit-1)[0]
+        Min = self.Min_Value(nextBoard,a,b,depthLimit-1,'o' if symbol == 'x' else 'x')[0]
       val = max(val, Min)
       values.append(val)
-      if(val > b):
+      if(val >= b):
         return (val,((-1, -1), (-2, -2)))
       else:
         a = max(a, val)
+    for i in range(len(values)):
+      if (values[i] == val):
+        pos = i
     return (val,legalMoves[i])
 
-  def Min_Value(self, board, a, b, depthLimit):
+  def Min_Value(self, board, a, b, depthLimit, symbol):
     #set initial min value to infinity
     val = 100000
     #get legalmoves
@@ -154,40 +161,36 @@ class AlphaBetaPlayer(Player):
     #return utility when no more legalmoves
     values = []
     if(len(legalMoves) == 0):
-      val = -1
+      val = -100000
       return (val,((-1, -1), (-2, -2)))
     for i in range(len(legalMoves)):
       nextBoard = deepcopy(board)
       nextBoard = game_rules.makeMove(nextBoard, legalMoves[i])
-      #nextBoard = nextBoard[0]
 
       #when meet depth limit, then use heuristic function to replace the val Max_Value
-      Max = -1
+      Max = -100000
       if(depthLimit == 0):
         Max = self.Heuristic(nextBoard)
       else:
-        Max = self.Max_Value(nextBoard,a,b,depthLimit-1)[0]
+        Max = self.Max_Value(nextBoard,a,b,depthLimit-1,'o' if symbol == 'x' else 'x')[0]
       val = min(val, Max)
       values.append(Max)
-      if(val > b):
+      if(val <= a):
         return (val,((-1, -1), (-2, -2)))
       else:
         b = min(b, val)
     for i in range(len(values)):
-      if (values[i] == b):
+      if (values[i] == val):
         pos = i
-    print len(legalMoves)
-    print len(values)
     return (val,legalMoves[i])
 
   def Heuristic(self, board):
     countCoins = [(r, c) for r in range(len(board)) for c in range(len(board[0])) if game_rules.pieceAt(board, (r, c)) == self.symbol]
     return len(countCoins)
+
   def Heuristic_2(self, board):
-    countCoins = [(r, c) for r in range(len(board)) for c in range(len(board[0])) if game_rules.pieceAt(board, (r, c)) == self.symbol]
-
-    return legalMoves
-
+    legalmoves = self.getLegalMove(board)
+    return len(legalmoves)
 
   def getLegalMove(self, board):
     mine = [(r, c) for r in range(len(board)) for c in range(len(board[0])) if game_rules.pieceAt(board, (r, c)) == self.symbol]
@@ -197,9 +200,9 @@ class AlphaBetaPlayer(Player):
 
   def AlphaBetaSearch(self, board):
     # TODO: write me
-    a = -1
+    a = -100000
     b = 100000
-    return self.Max_Value(board, a, b, self.depthLimit)
+    return self.Max_Value(board, a, b, self.depthLimit,self.symbol)
 
   def getMove(self, board):
     choice = self.AlphaBetaSearch(board)

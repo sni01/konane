@@ -1,0 +1,77 @@
+MinMax Player with Random Player
+depth=3
+7m47.319s X
+11m26.324s O
+7m15.445s X
+15m48.967s X
+13m3.676s O
+7m29.309s X
+5m20.429s O
+12m23.593s O
+11m47.973s O
+7m28.204s O
+depth=2
+39.430s X
+23.102s X
+33.375s O
+47.000s X
+58.117s X
+34.739s O
+26.540s X
+30.269s X
+29.811s O
+25.642s O
+
+
+AB Player with Random Player
+H1
+depth=3
+54.109s O
+49.776s O
+33.781s X
+32.373s X
+37.045s O
+49.257s X
+1m14.637s O
+1m23.423s X
+21.364s O
+30.730s O
+depth=2
+10.634s X
+13.033s O
+10.102s O
+12.130s O
+5.200s X
+9.511s O
+12.175s X
+13.004s O
+8.558s O
+14.370s O
+
+H2
+depth=3
+18m15.638s O
+6m7.176s O
+21m22.361s X
+6m31.402s O
+5m34.903s O
+depth=2
+2m52.303s O
+1m1.361s O
+1m40.485s O
+2m31.710s O
+1m34.361s O
+
+
+ heuristic 1:count the number of coins that has the player symbol on the board
+ heuristic 2:count the number of legal moves that the player has when meet the depth limitation 
+ the MinMax Player spends approximately 9m59.124s(10mins) and MinMax winner 4 times and random player winner 6 times
+ the AlephaBeta Player spends(using first heuristic), the time spending is approximately 46.650s, and AlephaBeta Player winner 1 times and random player winned 6 times
+ the AlephaBeta Player spends(using first heuristic), the time spending is approximately 11m28.296s, and AlephaBeta Player winner 1 times and random player winned 4 times
+ it seems that the heuristic 1 cause less time since it only scan the coins number, the heuristic 2 used more time since it checks the legal moves.
+ but they all win less times than random player, proved that they are not good heuristic or the heuristic methods do not show the accurate way of victory
+ the MinMax and AlphaBeta(heuristic 1) has the similar winning results, show that they are using same heuristic methods and they are only different in speed aspect.
+ when change depth from 3 to 2, MinMax player wins 6 times and random player wins 4 times.and the time speeding decreases significantly; for AlphaBeta Player, heuristic1 gets 3 wins and 7 loses, heuristic2 get 0 wins.
+ so both of two alphabeta players decrease winning rate after decreasing depth limitation from 3 to 2. But they all decreases time speeding dramatically
+ 
+
